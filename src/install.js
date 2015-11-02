@@ -13,13 +13,14 @@ var ProgressBar = require('progress');
 var request = require('request');
 var progress = require('request-progress');
 var tarball = require('tarball-extract');
+var mkdirp = require('mkdirp');
 
 var lib = require('./lib.js');
 
 // Check the current platform
 var platform = lib.getPlatform();
 if (!platform) {
-  console.error(('There is no platform configured for the current operating ' +
+  console.error(('(ERROR): There is no platform configured for the current operating ' +
   'system: ' + os.platform() + '_' + os.arch()).red);
   process.exit(1);
 }
@@ -44,6 +45,14 @@ if (lib.existsFile(lib.getNibbleTarFile())) {
   }
 }
 
+// Create the .adaptive folder if it's not created
+mkdirp(lib.getAdaptiveFolder(), function (err) {
+  if (err) {
+    console.error(('(ERROR): Error creating the adaptive folder. ' + err).green);
+    process.exit(1);
+  }
+});
+
 // Create a progress bar for the download
 var percent = -1;
 var bar = new ProgressBar('[:bar] :percent :elapseds :etas ', {
@@ -67,7 +76,7 @@ progress(request(platform.url), {})
   })
 
   .on('error', function (err) {
-    console.error((err).red);
+    console.error(('(ERROR): ' + err).red);
     process.exit(1);
   })
 
@@ -84,7 +93,7 @@ progress(request(platform.url), {})
 
     tarball.extractTarball(lib.getNibbleTarFile(), lib.getNibbleFolder(), function (err) {
       if (err) {
-        console.error((err).red);
+        console.error(('(ERROR): ' + err).red);
         process.exit(1);
       }
       console.log('Done!'.green);
@@ -94,6 +103,6 @@ progress(request(platform.url), {})
   })
 
   .on('error', function (err) {
-    console.error((err).red);
+    console.error(('(ERROR): ' + err).red);
     process.exit(1);
   });

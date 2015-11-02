@@ -24,7 +24,7 @@ notifier.notify();
 
 // Check the current platform
 if (!lib.getPlatform()) {
-  console.error(('There is no platform configured for the current operating ' +
+  console.error(('(ERROR): There is no platform configured for the current operating ' +
   'system: ' + os.platform() + '_' + os.arch()).red);
   process.exit(1);
 }
