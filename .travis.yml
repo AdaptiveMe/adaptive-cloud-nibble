@@ -6,9 +6,6 @@ node_js:
 script:
 - npm test
 
-after_success:
-- rm -Rf /home/travis/build/AdaptiveMe/adaptive-cloud-nibble/.adaptive/
-
 deploy:
   provider: npm
   email: "carlos@adaptive.me"
