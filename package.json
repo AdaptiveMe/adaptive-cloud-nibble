@@ -1,6 +1,6 @@
 {
   "name": "adaptive-cloud-nibble",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Adaptive Cloud Command Line Interface for Nibble",
   "preferGlobal": true,
   "bin": {
@@ -52,6 +52,7 @@
     "request": "^2.65.0",
     "request-progress": "^0.3.1",
     "shelljs": "^0.5.3",
+    "sync-request": "^2.1.0",
     "tarball-extract": "0.0.3",
     "update-notifier": "^0.5.0"
   },

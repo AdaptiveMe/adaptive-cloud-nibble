@@ -1,42 +1,38 @@
 'use strict';
 
-var constants = require('./constants.js');
 var colors = require('colors');
 var osHomedir = require('os-homedir');
 var os = require('os');
 var path = require('path');
 var fs = require('fs');
+var requestSync = require('sync-request');
+
+var host = 'https://app.adaptive.me';
+exports.host = host;
 
 // -------------------------------------------------------------------------- //
-// PLATFORMS
+// SYNC REQUEST
 // -------------------------------------------------------------------------- //
 
 /**
- * Access method to all the paltforms defined in the system
- * @returns {*|platforms} Array of platforms
+ * Method for executing a GET request in a syncronous way
+ * @param url Url for querying the body
  */
-var getPlatforms = function () {
-  return constants.platforms;
+var syncRequest = function (url) {
+
+  var res = requestSync('GET', url);
+
+  if (res.error) {
+    console.error(('ERROR executing the request: ' + error).red);
+    process.exit(1);
+  } else if (res.statusCode != 200) {
+    console.error(('ERROR (' + res.statusCode + ') executing the request: ' + error).red);
+    process.exit(1);
+  } else {
+    return (JSON.parse(res.body))
+  }
 };
-exports.getPlatforms = getPlatforms;
-
-/**
- * Return the current platform information for the running system. Null otherwise
- * @returns {*} Current platform
- */
-var getPlatform = function () {
-
-  var platform = null;
-
-  constants.platforms.forEach(function (p) {
-    if (p.name === os.platform() + '_' + os.arch()) {
-      platform = p;
-    }
-  });
-
-  return platform;
-};
-exports.getPlatform = getPlatform;
+exports.syncRequest = syncRequest;
 
 // -------------------------------------------------------------------------- //
 // FOLDERS
@@ -77,7 +73,8 @@ exports.getNibbleBinFolder = getNibbleBinFolder;
  * @returns {*} Absolute path for nibble tar file
  */
 var getNibbleTarFile = function () {
-  return getAdaptiveFolder() + path.sep + 'nibble-' + constants.nibble_version + '.tgz';
+  var nibble_version = syncRequest(host + '/api/env/release/nibble/latest').tag_name;
+  return getAdaptiveFolder() + path.sep + 'nibble-' + nibble_version + '.tgz';
 };
 exports.getNibbleTarFile = getNibbleTarFile;
 

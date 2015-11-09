@@ -8,20 +8,14 @@ describe('Nibble Releases Download url', function () {
 
   this.timeout(15000); // Increase the default timeout
 
-  /**
-   * Test to try a HEAD connection to Github. The expected result is a 403
-   * (redirect). This behaviour is normal in Github.
-   */
-  lib.getPlatforms().forEach(function (platform) {
+  // Test the connection with the Adaptive Host
+  it('Adaptive Cloud API Host', function (done) {
 
-    it(platform.name + ' (' + platform.url + ')', function (done) {
-
-      request.head(platform.url, function (err, res, body) {
-        expect(res.statusCode).to.equal(403);
-        done();
-      });
-
+    request.get(lib.host, function (err, res, body) {
+      expect(res.statusCode).to.equal(200);
+      done();
     });
-
   });
+
+
 });

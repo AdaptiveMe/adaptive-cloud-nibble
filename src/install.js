@@ -1,7 +1,7 @@
 /**
  * This script runs the installation of the nibble software. The script
  * checks if it's necesary to install or reinstall the nibble and
- * downloads the nibble if it's necessari to (re)install.
+ * downloads the nibble if it's necessary to (re)install.
  */
 
 'use strict';
@@ -17,15 +17,10 @@ var mkdirp = require('mkdirp');
 
 var lib = require('./lib.js');
 
-// Check the current platform
-var platform = lib.getPlatform();
-if (!platform) {
-  console.error(('(ERROR): There is no platform configured for the current operating ' +
-  'system: ' + os.platform() + '_' + os.arch()).red);
-  process.exit(1);
-}
+// -------------------------------------------------------------------------- //
+// RE-INSTALLATION. REQUIRED OR NOT?
+// -------------------------------------------------------------------------- //
 
-// Re-installation required or not?
 if (lib.existsFile(lib.getNibbleTarFile())) {
   console.log('You have the latest version of nibble installed. Skipping re-installation'.green);
   process.exit(0);
@@ -44,29 +39,52 @@ if (lib.existsFile(lib.getNibbleTarFile())) {
     });
   }
 }
+// -------------------------------------------------------------------------- //
+// .ADAPTIVE FOLDER
+// -------------------------------------------------------------------------- //
 
-// Create the .adaptive folder if it's not created
-mkdirp(lib.getAdaptiveFolder(), function (err) {
-  if (err) {
-    console.error(('(ERROR): Error creating the adaptive folder. ' + err).green);
+if (!lib.existsDirectory(lib.getAdaptiveFolder())) {
+
+  if (parseInt(process.env.SUDO_UID)) {
+    console.error(('(WARN): You are running this command as sudo and the .adaptive folder is not created in your home directory').yellow);
+    console.error(('Please create a folder <.adaptive> in your home directory\n\n\tmkdir ' + lib.getAdaptiveFolder() + '\n').yellow);
     process.exit(1);
+
+  } else {
+    // Create the .adaptive folder if it's not created
+    mkdirp(lib.getAdaptiveFolder(), function (err) {
+      if (err) {
+        console.error(('(ERROR): Error creating the adaptive folder. ' + err).red);
+        process.exit(1);
+      }
+    });
+  }
+}
+
+// -------------------------------------------------------------------------- //
+// DOWNLOAD
+// -------------------------------------------------------------------------- //
+
+// Retrieve the download url for nibble depending on the platform
+var nibbleInfo = lib.syncRequest(lib.host + '/api/env/release/nibble/latest');
+
+var osArch = os.arch() === 'ia32' ? 'i586' : 'x64'; // node.os.arch returns ia32 instead of i586
+var platform = os.platform() + '-' + osArch;
+var downloadURl = '';
+
+nibbleInfo.assets.forEach(function (entry) {
+  if (entry.name.indexOf(platform) > 0) {
+    downloadURl = entry.browser_download_url;
   }
 });
 
 // Create a progress bar for the download
 var percent = -1;
-var bar = new ProgressBar('[:bar] :percent :elapseds :etas ', {
-  complete: '=',
-  incomplete: ' ',
-  total: 101,
-  width: 50
-});
+var bar = new ProgressBar('[:bar] :percent :elapseds :etas ', {complete: '=', incomplete: ' ', total: 101, width: 50});
 
-// Download nibble
+console.log(('Downloading nibble: ' + downloadURl).green);
 
-console.log(('Downloading nibble: ' + platform.url).green);
-
-progress(request(platform.url), {})
+progress(request(downloadURl), {})
 
   .on('progress', function (state) {
     if (state.percent > percent) {
@@ -87,7 +105,9 @@ progress(request(platform.url), {})
 
   .on('close', function (file) {
 
-    // Extract nibble
+    // -------------------------------------------------------------------------- //
+    // EXTRACT NIBBLE
+    // -------------------------------------------------------------------------- //
 
     console.log(('Extracting nibble: ' + lib.getNibbleTarFile()).green);
 
