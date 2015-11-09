@@ -71,7 +71,8 @@ if (!lib.existsDirectory(lib.getAdaptiveFolder())) {
 var nibbleInfo = lib.syncRequest(lib.host + '/api/env/release/nibble/latest');
 
 var osArch = os.arch() === 'ia32' ? 'i586' : 'x64'; // node.os.arch returns ia32 instead of i586
-var platform = os.platform() + '-' + osArch;
+var osPlatform = os.platform() === 'win32' ? 'windows' : os.platform();
+var platform = osPlatform + '-' + osArch;
 var downloadURl = '';
 
 nibbleInfo.assets.forEach(function (entry) {
@@ -79,6 +80,11 @@ nibbleInfo.assets.forEach(function (entry) {
     downloadURl = entry.browser_download_url;
   }
 });
+
+if(downloadURl === '') {
+  console.error(('(ERROR): There is no nibble installation for your platform').red);
+  process.exit(1);
+}
 
 // Create a progress bar for the download
 var percent = -1;
