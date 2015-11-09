@@ -4,7 +4,7 @@ var lib = require('../src/lib.js');
 var expect = require('expect.js');
 var request = require('request');
 
-describe('Nibble Releases Download url', function () {
+describe('Nibble', function () {
 
   this.timeout(15000); // Increase the default timeout
 

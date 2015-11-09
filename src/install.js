@@ -81,7 +81,7 @@ nibbleInfo.assets.forEach(function (entry) {
   }
 });
 
-if(downloadURl === '') {
+if (downloadURl === '') {
   console.error(('(ERROR): There is no nibble installation for your platform').red);
   process.exit(1);
 }
