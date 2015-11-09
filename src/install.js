@@ -46,8 +46,10 @@ if (lib.existsFile(lib.getNibbleTarFile())) {
 if (!lib.existsDirectory(lib.getAdaptiveFolder())) {
 
   if (parseInt(process.env.SUDO_UID)) {
-    console.error(('(WARN): You are running this command as sudo and the .adaptive folder is not created in your home directory').yellow);
-    console.error(('Please create a folder <.adaptive> in your home directory\n\n\tmkdir ' + lib.getAdaptiveFolder() + '\n').yellow);
+    console.error(('(WARN): You are running this command as sudo and the .adaptive ' +
+    'folder is not created in your home directory').yellow);
+    console.error(('Please create a folder <.adaptive> in your home directory\n\n\tmkdir ' +
+    lib.getAdaptiveFolder() + '\n').yellow);
     process.exit(1);
 
   } else {
